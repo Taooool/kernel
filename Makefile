@@ -73,7 +73,7 @@ LD = $(TOOLPREFIX)ld
 OBJCOPY = $(TOOLPREFIX)objcopy
 OBJDUMP = $(TOOLPREFIX)objdump
 
-CFLAGS = -Wall -Werror -O -fno-omit-frame-pointer -ggdb -g
+CFLAGS = -Wall -O -fno-omit-frame-pointer -ggdb -g
 CFLAGS += -MD
 CFLAGS += -mcmodel=medany
 CFLAGS += -ffreestanding -fno-common -nostdlib -mno-relax
@@ -105,6 +105,7 @@ $T/kernel: $(OBJS) $(linker) $U/initcode
 	@$(OBJDUMP) -S $T/kernel > $T/kernel.asm
 	@$(OBJDUMP) -t $T/kernel | sed '1,/SYMBOL TABLE/d; s/ .* / /; /^$$/d' > $T/kernel.sym
   
+kernel: $T/kernel
 build: $T/kernel userprogs
 
 # Compile RustSBI
@@ -146,8 +147,8 @@ ifeq ($(platform), k210)
 	@$(OBJCOPY) $(RUSTSBI) --strip-all -O binary $(k210)
 	@dd if=$(image) of=$(k210) bs=128k seek=1
 	@$(OBJDUMP) -D -b binary -m riscv $(k210) > $T/k210.asm
-	@sudo chmod 777 $(k210-serialport)
-	@python3 ./tools/kflash.py -p $(k210-serialport) -b 1500000 -t $(k210)
+#	@sudo chmod 777 $(k210-serialport)
+#	@python3 ./tools/kflash.py -p $(k210-serialport) -b 1500000 -t $(k210)
 else
 	@$(QEMU) $(QEMUOPTS)
 endif
