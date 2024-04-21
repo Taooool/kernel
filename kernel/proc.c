@@ -51,6 +51,7 @@ void reg_info(void) {
 void
 procinit(void)
 {
+  /*
   struct proc *p;
   
   initlock(&pid_lock, "nextpid");
@@ -72,6 +73,7 @@ procinit(void)
   //kvminithart();
 
   memset(cpus, 0, sizeof(cpus));
+  */
   #ifdef DEBUG
   printf("procinit\n");
   #endif

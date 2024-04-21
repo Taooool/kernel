@@ -91,8 +91,18 @@ kvminit()
 void
 kvminithart()
 {
+  sfence_vma();
+  #ifdef DEBUG
+  // printf("debug: w_satp: %p\n", MAKE_SATP(kernel_pagetable));
+  printf("satp: %p\n", r_satp());
+  #endif
+
+  // w_satp(0x9000000000000000);
   w_satp(MAKE_SATP(kernel_pagetable));
   // reg_info();
+  #ifdef DEBUG
+  // printf("debug: sfence_vma\n");
+  #endif
   sfence_vma();
   #ifdef DEBUG
   printf("kvminithart\n");

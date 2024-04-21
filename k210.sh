@@ -1,6 +1,6 @@
 #!/bin/bash
 #cd $TOP/xv6-riscv
-#make clean
+make clean
 make run
 rm $TOP/kernel
 cp -p ./target/kernel $TOP/kernel

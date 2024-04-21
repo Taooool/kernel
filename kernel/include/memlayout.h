@@ -102,7 +102,7 @@
 #define KERNBASE                0x80200000
 #endif
 
-#define PHYSTOP                 0x80600000
+#define PHYSTOP                 0x86200000
 
 // map the trampoline page to the highest address,
 // in both user and kernel space.
@@ -124,6 +124,6 @@
 //   TRAMPOLINE (the same page as in the kernel)
 #define TRAPFRAME               (TRAMPOLINE - PGSIZE)
 
-#define MAXUVA                  RUSTSBI_BASE
+#define MAXUVA                  KERNBASE
 
 #endif

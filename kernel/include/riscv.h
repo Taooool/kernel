@@ -186,15 +186,23 @@ w_mtvec(uint64 x)
 
 // use riscv's sv39 page table scheme.
 #define SATP_SV39 (8L << 60)
+#define BARE (0L << 60)
 
-#define MAKE_SATP(pagetable) (SATP_SV39 | (((uint64)pagetable) >> 12))
+#define MAKE_SATP(pagetable) (BARE | (((uint64)pagetable) >> 12))
 
 // supervisor address translation and protection;
 // holds the address of the page table.
 static inline void 
 w_satp(uint64 x)
 {
+  #ifdef DEBUG
+  printf("x: %p\n", x);
+  #endif
   asm volatile("csrw satp, %0" : : "r" (x));
+  // asm volatile("csrw sptbr, %0" : : "r" (x));
+  #ifdef DEBUG
+  printf("w_satp done\n");
+  #endif
 }
 
 static inline uint64
@@ -329,8 +337,8 @@ static inline void
 sfence_vma()
 {
   // the zero, zero means flush all TLB entries.
-  // asm volatile("sfence.vma zero, zero");
-  asm volatile("sfence.vma");
+  asm volatile("sfence.vma zero, zero");
+  // asm volatile("sfence.vma");
 }
 
 

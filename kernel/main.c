@@ -28,6 +28,8 @@ static inline void inithartid(unsigned long hartid) {
 
 volatile static int started = 0;
 
+// #define SIZEOF_ARRAY(arr) ( (char *)(&arr + 1) - (char *)(&arr) )
+
 void
 main(unsigned long hartid, unsigned long dtb_pa)
 {
@@ -39,12 +41,15 @@ main(unsigned long hartid, unsigned long dtb_pa)
     print_logo();
     #ifdef DEBUG
     printf("hart %d enter main()...\n", hartid);
+    // int array[10];
+    // printf("Size of array: %p bytes\n", SIZEOF_ARRAY(array));
     #endif
     kinit();         // physical page allocator
     kvminit();       // create kernel page table
     kvminithart();   // turn on paging
     timerinit();     // init a lock for timer
     trapinithart();  // install kernel trap vector, including interrupt handler
+
     procinit();
     plicinit();
     plicinithart();
