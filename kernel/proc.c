@@ -51,7 +51,7 @@ void reg_info(void) {
 void
 procinit(void)
 {
-  /*
+  
   struct proc *p;
   
   initlock(&pid_lock, "nextpid");
@@ -73,7 +73,7 @@ procinit(void)
   //kvminithart();
 
   memset(cpus, 0, sizeof(cpus));
-  */
+  
   #ifdef DEBUG
   printf("procinit\n");
   #endif
@@ -554,9 +554,12 @@ scheduler(void)
         // printf("[scheduler]found runnable proc with pid: %d\n", p->pid);
         p->state = RUNNING;
         c->proc = p;
+
         w_satp(MAKE_SATP(p->kpagetable));
         sfence_vma();
+
         swtch(&c->context, &p->context);
+        
         w_satp(MAKE_SATP(kernel_pagetable));
         sfence_vma();
         // Process is done running for now.

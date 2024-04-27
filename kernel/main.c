@@ -28,7 +28,6 @@ static inline void inithartid(unsigned long hartid) {
 
 volatile static int started = 0;
 
-// #define SIZEOF_ARRAY(arr) ( (char *)(&arr + 1) - (char *)(&arr) )
 
 void
 main(unsigned long hartid, unsigned long dtb_pa)
@@ -41,8 +40,11 @@ main(unsigned long hartid, unsigned long dtb_pa)
     print_logo();
     #ifdef DEBUG
     printf("hart %d enter main()...\n", hartid);
-    // int array[10];
-    // printf("Size of array: %p bytes\n", SIZEOF_ARRAY(array));
+    int c = sbi_console_getchar();
+		if (-1 != c) 
+		  printf("ok\n");
+    else
+      printf("failed\n");
     #endif
     kinit();         // physical page allocator
     kvminit();       // create kernel page table
@@ -57,8 +59,8 @@ main(unsigned long hartid, unsigned long dtb_pa)
     fpioa_pin_init();
     dmac_init();
     #endif 
-    disk_init();
-    binit();         // buffer cache
+    // disk_init();
+    // binit();         // buffer cache
     fileinit();      // file table
     userinit();      // first user process
     printf("hart 0 init done\n");

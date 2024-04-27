@@ -163,7 +163,9 @@ void print_logo() {
 }
 #else
 void print_logo() {
-    printf("a simplification from U202015543 Haitao Li\n");
+    printf("--------------------------------------------\n");
+    printf("|a simplification from U202015543 Haitao Li|\n");
+    printf("--------------------------------------------\n");
 }
 #endif
   
