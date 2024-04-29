@@ -33,7 +33,8 @@
 //             -kernel loads the kernel here
 // unused RAM after 80000000.
 
-#define VIRT_OFFSET             0x3F00000000L
+// #define VIRT_OFFSET             0x3F00000000L
+#define VIRT_OFFSET             0x00000000L
 
 #ifdef QEMU
 // qemu puts UART registers here in physical memory.

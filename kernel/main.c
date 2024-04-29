@@ -40,11 +40,6 @@ main(unsigned long hartid, unsigned long dtb_pa)
     print_logo();
     #ifdef DEBUG
     printf("hart %d enter main()...\n", hartid);
-    int c = sbi_console_getchar();
-		if (-1 != c) 
-		  printf("ok\n");
-    else
-      printf("failed\n");
     #endif
     kinit();         // physical page allocator
     kvminit();       // create kernel page table

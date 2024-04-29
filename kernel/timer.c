@@ -27,7 +27,7 @@ set_next_timeout() {
     // the timer will not work.
 
     // this bug seems to disappear automatically
-    // printf("");
+    printf("");
     sbi_set_timer(r_time() + INTERVAL);
 }
 
