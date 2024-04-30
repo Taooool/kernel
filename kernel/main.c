@@ -50,36 +50,32 @@ main(unsigned long hartid, unsigned long dtb_pa)
     procinit();
     plicinit();
     plicinithart();
-    #ifndef QEMU
-    fpioa_pin_init();
-    dmac_init();
-    #endif 
     // disk_init();
     // binit();         // buffer cache
-    fileinit();      // file table
+    // fileinit();      // file table
     userinit();      // first user process
     printf("hart 0 init done\n");
     
-    for(int i = 1; i < NCPU; i++) {
-      unsigned long mask = 1 << i;
-      sbi_send_ipi(&mask);
-    }
-    __sync_synchronize();
-    started = 1;
+    // for(int i = 1; i < NCPU; i++) {
+    //   unsigned long mask = 1 << i;
+    //   sbi_send_ipi(&mask);
+    // }
+    // __sync_synchronize();
+    // started = 1;
   }
-  else
-  {
-    // hart 1
-    while (started == 0)
-      ;
-    __sync_synchronize();
-    #ifdef DEBUG
-    printf("hart %d enter main()...\n", hartid);
-    #endif
-    kvminithart();
-    trapinithart();
-    plicinithart();  // ask PLIC for device interrupts
-    printf("hart 1 init done\n");
-  }
+  // else
+  // {
+  //   // hart 1
+  //   while (started == 0)
+  //     ;
+  //   __sync_synchronize();
+  //   #ifdef DEBUG
+  //   printf("hart %d enter main()...\n", hartid);
+  //   #endif
+  //   kvminithart();
+  //   trapinithart();
+  //   plicinithart();  // ask PLIC for device interrupts
+  //   printf("hart 1 init done\n");
+  // }
   scheduler();
 }

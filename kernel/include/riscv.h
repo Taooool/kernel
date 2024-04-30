@@ -196,12 +196,12 @@ static inline void
 w_satp(uint64 x)
 {
   #ifdef DEBUG
-  printf("x: %p\n", x);
+  // printf("x: %p\n", x);
   #endif
   asm volatile("csrw satp, %0" : : "r" (x));
   // asm volatile("csrw sptbr, %0" : : "r" (x));
   #ifdef DEBUG
-  printf("w_satp done\n");
+  // printf("w_satp done\n");
   #endif
 }
 

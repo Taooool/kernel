@@ -13,6 +13,11 @@
 #include "include/file.h"
 #include "include/trap.h"
 #include "include/vm.h"
+#include "include/sbi.h"
+#include "include/stat.h"
+#include "include/fcntl.h"
+
+// #include "include/sys_sh.h"
 
 
 struct cpu cpus[NCPU];
@@ -26,6 +31,8 @@ struct spinlock pid_lock;
 
 extern void forkret(void);
 extern void swtch(struct context*, struct context*);
+extern void sys_sh(void);
+
 static void wakeup1(struct proc *chan);
 static void freeproc(struct proc *p);
 
@@ -535,46 +542,55 @@ wait(uint64 addr)
 void
 scheduler(void)
 {
+  printf("xv6 is running\n");
   struct proc *p;
   struct cpu *c = mycpu();
   extern pagetable_t kernel_pagetable;
 
   c->proc = 0;
-  for(;;){
-    // Avoid deadlock by ensuring that devices can interrupt.
-    intr_on();
+  // for(;;){
+  //   // Avoid deadlock by ensuring that devices can interrupt.
+  //   intr_on();
     
-    int found = 0;
-    for(p = proc; p < &proc[NPROC]; p++) {
-      acquire(&p->lock);
-      if(p->state == RUNNABLE) {
-        // Switch to chosen process.  It is the process's job
-        // to release its lock and then reacquire it
-        // before jumping back to us.
-        // printf("[scheduler]found runnable proc with pid: %d\n", p->pid);
-        p->state = RUNNING;
-        c->proc = p;
+  //   int found = 0;
+  //   for(p = proc; p < &proc[NPROC]; p++) {
+  //     acquire(&p->lock);
+  //     if(p->state == RUNNABLE) {
+  //       // Switch to chosen process.  It is the process's job
+  //       // to release its lock and then reacquire it
+  //       // before jumping back to us.
+  //       // printf("[scheduler]found runnable proc with pid: %d\n", p->pid);
+  //       p->state = RUNNING;
+  //       c->proc = p;
 
-        w_satp(MAKE_SATP(p->kpagetable));
-        sfence_vma();
+  //       w_satp(MAKE_SATP(p->kpagetable));
+  //       sfence_vma();
 
-        swtch(&c->context, &p->context);
+  //       swtch(&c->context, &p->context);
         
-        w_satp(MAKE_SATP(kernel_pagetable));
-        sfence_vma();
-        // Process is done running for now.
-        // It should have changed its p->state before coming back.
-        c->proc = 0;
+  //       w_satp(MAKE_SATP(kernel_pagetable));
+  //       sfence_vma();
+  //       // Process is done running for now.
+  //       // It should have changed its p->state before coming back.
+  //       c->proc = 0;
 
-        found = 1;
-      }
-      release(&p->lock);
-    }
-    if(found == 0) {
-      intr_on();
-      asm volatile("wfi");
-    }
+  //       found = 1;
+  //     }
+  //     release(&p->lock);
+  //   }
+  //   if(found == 0) {
+  //     intr_on();
+  //     asm volatile("wfi");
+  //   }
+  // }
+
+  for(int i=0; i<5; i++)
+  {
+    printf("hello world\n");
   }
+  sys_sh();
+  sbi_shutdown();
+
 }
 
 // Switch to scheduler.  Must hold only p->lock
@@ -801,3 +817,119 @@ procnum(void)
   return num;
 }
 
+/*---------------------------------------------------*/
+
+#define EXEC  1
+#define REDIR 2
+#define PIPE  3
+#define LIST  4
+#define BACK  5
+
+#define NENVS 16
+#define MAXARGS 10
+
+struct env{
+  char name[32];
+  char value[96];
+};
+
+struct env envs[NENVS];
+int nenv = 0;
+
+struct cmd {
+  int type;
+};
+
+struct execcmd {
+  int type;
+  char *argv[MAXARGS];
+  char *eargv[MAXARGS];
+};
+
+struct redircmd {
+  int type;
+  struct cmd *cmd;
+  char *file;
+  char *efile;
+  int mode;
+  int fd;
+};
+
+struct pipecmd {
+  int type;
+  struct cmd *left;
+  struct cmd *right;
+};
+
+struct listcmd {
+  int type;
+  struct cmd *left;
+  struct cmd *right;
+};
+
+struct backcmd {
+  int type;
+  struct cmd *cmd;
+};
+
+char mycwd[128];
+
+char*
+gets(char *buf, int max)
+{
+  int i, cc;
+  char c;
+
+  for(i=0; i+1 < max; ){
+    // cc = sys_read(0, &c, 1);
+    cc = consoleread(0, &c, 1);
+    if(cc < 1)
+      break;
+    buf[i++] = c;
+    if(c == '\n' || c == '\r')
+      break;
+  }
+  buf[i] = '\0';
+  return buf;
+}
+
+void sys_sh(void)
+{
+  printf("test\n");
+  /*init*/
+  sys_dev(O_RDWR, CONSOLE, 0);
+  sys_dup(0);  // stdout
+  sys_dup(0);  // stderr
+  printf("init: starting sh\n");
+  /*sh*/
+  static char buf[100];
+  int fd;
+  while((fd = sys_dev(O_RDWR, 1, 0)) >= 0){
+    if(fd >= 3){
+      printf("fail to open fd %d\n", fd);
+      sys_close(fd);
+      break;
+    }
+  }
+  printf("-> $ ");
+    memset(buf, 0, sizeof(buf));
+    // gets(buf, sizeof(buf));
+    // printf("buf: %s\n", buf);
+    char c; int cc;
+    cc = consoleread(0, &c, 1);
+    printf("c: %d\n", c);
+
+  // while(1){
+  //   printf("-> $ ");
+  //   memset(buf, 0, sizeof(buf));
+  //   gets(buf, sizeof(buf));
+  //   if(buf[0] == 0)
+  //     continue;
+  //   if(strcmp(buf, "exit") == 0){
+  //     break;
+  //   }
+  //   runcmd(buf);
+  // }
+
+  printf("sh is ending\n");
+}

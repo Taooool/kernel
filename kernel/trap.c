@@ -34,11 +34,11 @@ void
 trapinithart(void)
 {
   w_stvec((uint64)kernelvec);
-  w_sstatus(r_sstatus() | SSTATUS_SIE);
+  // w_sstatus(r_sstatus() | SSTATUS_SIE);
   // enable supervisor-mode timer interrupts.
-  w_sie(r_sie() | SIE_SEIE | SIE_SSIE | SIE_STIE);
-  printf("before go to set_next_timeout\n");
-  set_next_timeout();
+  // w_sie(r_sie() | SIE_SEIE | SIE_SSIE | SIE_STIE);
+  // printf("before go to set_next_timeout\n");
+  // set_next_timeout();
   #ifdef DEBUG
   printf("trapinithart\n");
   #endif
